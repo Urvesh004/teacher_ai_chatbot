@@ -1,0 +1,135 @@
+{% extends 'excel_ai_chatbot/base.html' %}
+{% load static %}
+
+{% block title %}Excel Upload — Excel AI Chatbot{% endblock %}
+
+{% block content %}
+<div class="upload-page-container">
+
+  <div class="page-header">
+    <h2><i class="fas fa-cloud-upload-alt"></i> Excel Upload</h2>
+    <p>Upload student Excel files and automatically import data into the system.</p>
+  </div>
+
+  <!-- Required Columns Guide -->
+  <div class="glass-card">
+    <h3 class="card-title">
+      <i class="fas fa-info-circle"></i> Required Excel Columns
+    </h3>
+    <p style="color: var(--text-secondary); font-size: .9rem; margin-bottom: 14px;">
+      Ensure your Excel sheet header contains exactly these columns to prevent import errors:
+    </p>
+    <div class="format-guide-grid">
+      <div class="col-badge">Roll No</div>
+      <div class="col-badge">Name</div>
+      <div class="col-badge">Std</div>
+      <div class="col-badge">Fee Status</div>
+      <div class="col-badge">Remaining Fee</div>
+      <div class="col-badge">Total Paid Fee</div>
+    </div>
+    <div class="upload-tip">
+      <strong><i class="fas fa-exclamation-triangle"></i> Tip:</strong> Do not leave mandatory cells empty, especially Roll No and Name.
+    </div>
+  </div>
+
+  <!-- Upload + History Grid -->
+  <div class="top-grid">
+
+    <!-- Upload Form -->
+    <div class="glass-card">
+      <h3 class="card-title">
+        <i class="fas fa-file-import"></i> Upload Student File
+      </h3>
+
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="file-drop-area" id="drop-area">
+          <i class="fas fa-file-excel file-drop-icon"></i>
+          <span class="file-msg" id="file-msg">Choose an Excel file or drag it here</span>
+          <span class="file-support">Supported formats: .xlsx, .xls</span>
+          <input type="file" name="excel_file" accept=".xlsx,.xls" required class="file-input" id="file-input">
+        </div>
+
+        <button type="submit" class="upload-btn">
+          <i class="fas fa-upload"></i> Process & Upload Data
+        </button>
+      </form>
+    </div>
+
+    <!-- Upload History -->
+    <div class="glass-card">
+      <div class="section-header" style="margin-bottom: 16px;">
+        <h3 style="font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-history" style="color: var(--primary);"></i> Upload History
+        </h3>
+      </div>
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th><i class="fas fa-hashtag"></i> ID</th>
+            <th><i class="fas fa-file-alt"></i> File Name</th>
+            <th><i class="fas fa-clock"></i> Uploaded Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for upload in uploads %}
+          <tr>
+            <td><strong>#{{ upload.id }}</strong></td>
+            <td>
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-file-excel" style="color: var(--green);"></i>
+                {{ upload.file.name }}
+              </span>
+            </td>
+            <td>{{ upload.uploaded_at }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="empty-state">
+              <i class="fas fa-folder-open" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
+              No Upload History Found. Upload your first file above.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('file-input');
+    const fileMsg = document.getElementById('file-msg');
+    const dropArea = document.getElementById('drop-area');
+
+    // Show file name when selected
+    fileInput.addEventListener('change', function(e) {
+      if (this.files && this.files.length > 0) {
+        const fileName = this.files[0].name;
+        fileMsg.innerHTML = '<strong style="color: var(--primary);">Selected:</strong> ' + fileName;
+        dropArea.style.borderColor = 'var(--primary)';
+        dropArea.style.backgroundColor = 'var(--primary-light)';
+      } else {
+        fileMsg.innerHTML = 'Choose an Excel file or drag it here';
+        dropArea.style.borderColor = '';
+        dropArea.style.backgroundColor = '';
+      }
+    });
+
+    // Drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+    });
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Excel Sheets{% endblock %}
+{% block breadcrumb %}Excel Sheets{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Excel Sheet Management</h1>
+    <p class="section-subtitle">View and manage all uploaded Excel files</p>
+  </div>
+</div>
+
+<div class="stats-row stats-row-sm">
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-green"><i class="fa-solid fa-file-excel"></i></div>
+    <div class="stat-body"><p class="stat-label">Total Uploads</p><h2 class="stat-value">{{ uploads.count }}</h2></div>
+  </div>
+</div>
+
+<div class="data-card">
+  <div class="data-card-header">
+    <h3>Upload History</h3>
+    <form method="GET" class="search-form">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" name="search" value="{{ search }}" placeholder="Search file name..." class="search-input">
+    </form>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>File Name</th>
+          <th>Uploaded At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for upload in uploads %}
+        <tr>
+          <td class="muted">{{ upload.id }}</td>
+          <td>
+            <span class="file-chip">
+              <i class="fa-solid fa-file-excel"></i>
+              {{ upload.file.name }}
+            </span>
+          </td>
+          <td class="muted">{{ upload.uploaded_at|date:"d M Y, h:i A" }}</td>
+          <td>
+            <a href="{{ upload.file.url }}" target="_blank" class="btn btn-sm btn-primary">
+              <i class="fa-solid fa-eye"></i> View
+            </a>
+            <form method="post" action="{% url 'admin_panel:delete_excel' upload.id %}" style="display:inline;" onsubmit="return confirm('Delete this file permanently?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="empty-row"><i class="fa-solid fa-folder-open"></i><br>No Excel files uploaded yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

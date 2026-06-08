@@ -1,0 +1,44 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Edit User{% endblock %}
+{% block breadcrumb %}Users / Edit{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Edit User</h1>
+    <p class="section-subtitle">Update user details for <strong>{{ edit_user.username }}</strong></p>
+  </div>
+  <a href="{% url 'admin_panel:users' %}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back</a>
+</div>
+
+<div class="form-card">
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-grid">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" name="first_name" value="{{ edit_user.first_name }}" placeholder="First Name">
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" name="last_name" value="{{ edit_user.last_name }}" placeholder="Last Name">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ edit_user.email }}" placeholder="Email address">
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select name="role">
+          <option value="teacher" {% if edit_user.role == 'teacher' %}selected{% endif %}>Teacher</option>
+          <option value="superadmin" {% if edit_user.role == 'superadmin' %}selected{% endif %}>Super Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+      <a href="{% url 'admin_panel:users' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'excel_ai_chatbot/base.html' %}
+
+{% block title %}Student List — Excel AI Chatbot{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <h2><i class="fas fa-users"></i> Student Details</h2>
+  <p>Search and manage all student records in one place.</p>
+</div>
+
+<form method="GET">
+  <div class="search-box">
+    <input type="text" name="search" placeholder="Search by name, roll number, or standard..." value="{{ request.GET.search }}" />
+    <button type="submit"><i class="fas fa-search"></i> Search</button>
+  </div>
+</form>
+
+<div class="table-wrapper">
+  <div class="section-header">
+    <h3>All Students</h3>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Roll No</th>
+        <th>Name</th>
+        <th>Std</th>
+        <th>Fee Status</th>
+        <th>Remaining Fee</th>
+        <th>Paid Fee</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+        <tr>
+          <td><strong>#{{ student.roll_no }}</strong></td>
+          <td class="student-name">{{ student.name }}</td>
+          <td>{{ student.std }}</td>
+          <td>
+  <span class="badge
+    {% if student.fee_status|lower == 'paid' %}
+      badge-paid
+    {% else %}
+      badge-pending
+    {% endif %}">
+
+    {% if student.fee_status|lower == 'paid' %}
+      <i class="fas fa-check-circle"></i>
+      Paid
+    {% else %}
+      <i class="fas fa-clock"></i>
+      Pending
+    {% endif %}
+
+  </span>
+</td>
+          <td>&#8377;{{ student.remaining_fee }}</td>
+          <td>&#8377;{{ student.total_paid_fee }}</td>
+          <td>
+            <a href="{% url 'student_detail' student.id %}" class="action-btn" style="padding:7px 16px;font-size:.82rem;">
+              <i class="fas fa-eye"></i> View
+            </a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" class="empty-state">No Students Found</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

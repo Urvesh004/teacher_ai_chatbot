@@ -1,0 +1,65 @@
+<!-- ═══════════════════════════════════════════
+     CHATBOT WIDGET
+═══════════════════════════════════════════ -->
+
+<!-- Floating trigger button -->
+<button id="chat-icon" aria-label="Open chat assistant">
+  <i class="fas fa-robot"></i>
+  <span class="chat-badge" id="chat-badge" style="display:none">1</span>
+</button>
+
+<!-- Chat panel -->
+<div id="chat-box" role="dialog" aria-label="Student Assistant">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar">
+        <i class="fas fa-robot"></i>
+        <span class="avatar-dot"></span>
+      </div>
+      <div>
+        <h4>Student Assistant</h4>
+        <span class="online-status">Online</span>
+      </div>
+    </div>
+    <button id="close-chat" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Message area -->
+  <div id="chat-messages">
+    <div class="msg msg-bot">
+      <div class="bubble">
+        <strong>Hello, Teacher!</strong><br><br>
+        I can answer questions about student fees and class data.<br><br>
+        Pick a quick question below or type your own:
+      </div>
+    </div>
+
+    <div class="suggestions">
+      <button class="suggestion-btn" data-question="Total Students"><i class="fas fa-user-graduate"></i> Total Students</button>
+      <button class="suggestion-btn" data-question="Total Fee Paid"><i class="fas fa-coins"></i> Fee Paid</button>
+      <button class="suggestion-btn" data-question="Total Pending Fee"><i class="fas fa-file-invoice"></i> Pending Fee</button>
+      <button class="suggestion-btn" data-question="Pending Student Count"><i class="fas fa-exclamation-circle"></i> Pending Count</button>
+      <button class="suggestion-btn" data-question="Highest Remaining Fee"><i class="fas fa-trophy"></i> Highest Due</button>
+      <button class="suggestion-btn" data-question="Last 10 Students"><i class="fas fa-list-ol"></i> Last 10</button>
+      <button class="suggestion-btn" data-question="Help"><i class="fas fa-question-circle"></i> Help</button>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div class="chat-input">
+    <input
+      type="text"
+      id="chat-message"
+      placeholder="Type a question..."
+      autocomplete="off"
+      maxlength="200"
+    />
+    <button id="send-btn" aria-label="Send message">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+</div>

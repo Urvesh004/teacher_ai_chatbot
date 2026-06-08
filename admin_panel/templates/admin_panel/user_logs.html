@@ -1,0 +1,81 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}
+  User Logs
+{% endblock %}
+{% block breadcrumb %}
+  User Logs
+{% endblock %}
+
+{% block content %}
+  <div class="section-header">
+    <div>
+      <h1 class="section-title">User Activity Logs</h1>
+      <p class="section-subtitle">Monitor all user activity in the system</p>
+    </div>
+  </div>
+
+  <div class="stats-row stats-row-sm">
+    <div class="stat-card">
+      <div class="stat-icon-wrap clr-orange">
+        <i class="fa-solid fa-clipboard-list"></i>
+      </div>
+      <div class="stat-body">
+        <p class="stat-label">Total Logs</p><h2 class="stat-value">{{ logs.count }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="data-card">
+    <div class="data-card-header">
+      <h3>Activity History</h3>
+      <form method="GET" class="search-form">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" name="search" value="{{ search }}" placeholder="Search activity..." class="search-input" />
+      </form>
+    </div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Activity</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+            <tr>
+              <td class="muted">{{ log.id }}</td>
+
+              <td>
+                <strong>{{ log.user.username }}</strong>
+              </td>
+
+              <td>
+                {% if log.activity == 'LOGIN' %}
+                  <span class="badge badge-success">Login</span>
+                {% elif log.activity == 'LOGOUT' %}
+                  <span class="badge badge-danger">Logout</span>
+                {% elif log.activity == 'REGISTER' %}
+                  <span class="badge badge-info">Register</span>
+                {% else %}
+                  <span class="badge badge-secondary">{{ log.activity }}</span>
+                {% endif %}
+              </td>
+
+              <td class="muted">{{ log.created_at|date:'d M Y H:i' }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="empty-row">
+                <i class="fa-solid fa-history"></i><br />
+                No activity logs found.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

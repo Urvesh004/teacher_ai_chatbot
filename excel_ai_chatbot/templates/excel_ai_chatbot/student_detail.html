@@ -1,0 +1,63 @@
+{% extends 'excel_ai_chatbot/base.html' %}
+
+{% block title %}{{ student.name }} — Student Detail{% endblock %}
+
+{% block content %}
+<div class="student-detail-wrapper">
+  <div class="student-detail-card">
+
+    <!-- Header -->
+    <div class="detail-card-header">
+      <div class="student-avatar">
+        <i class="fas fa-user-graduate"></i>
+      </div>
+      <div class="student-header-info">
+        <h2>{{ student.name }}</h2>
+        <span class="badge-roll"><i class="fas fa-id-badge"></i> Roll No: {{ student.roll_no }}</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="detail-card-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Standard</span>
+          <span class="info-value">{{ student.std }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Fee Status</span>
+          <span class="info-value">
+            <span class="badge
+              {% if student.fee_status|lower == 'paid' %}badge-paid
+              {% elif student.fee_status|lower == 'pending' %}badge-pending
+              {% else %}badge-default{% endif %}">
+              {% if student.fee_status|lower == 'paid' %}<i class="fas fa-check-circle"></i>
+              {% elif student.fee_status|lower == 'pending' %}<i class="fas fa-clock"></i>{% endif %}
+              {{ student.fee_status }}
+            </span>
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Total Paid Fee</span>
+          <span class="info-value text-success fee-highlight">&#8377;{{ student.total_paid_fee }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Remaining Fee</span>
+          <span class="info-value text-danger fee-highlight">&#8377;{{ student.remaining_fee }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="detail-card-footer">
+      <a href="{% url 'student_list' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Students
+      </a>
+      <a href="{% url 'student_update' student.id %}" class="btn-edit">
+        <i class="fas fa-edit"></i> Edit Student
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
