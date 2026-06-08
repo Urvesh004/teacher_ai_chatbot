@@ -1,0 +1,252 @@
+{% extends 'excel_ai_chatbot/base.html' %}
+{% block title %}Dashboard — Excel AI Chatbot{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <h2><i class="fas fa-chart-pie"></i> Dashboard Overview</h2>
+  <p>Welcome back, <strong>{{ request.user.username }}</strong> — here's your student summary.</p>
+</div>
+
+<!-- ── Stat Cards ── -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon icon-blue"><i class="fas fa-users"></i></div>
+    <div class="stat-details">
+      <h3>Total Students</h3>
+      <h1>{{ total_students }}</h1>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon icon-green"><i class="fas fa-circle-check"></i></div>
+    <div class="stat-details">
+      <h3>Fee Paid Students</h3>
+      <h1>{{ paid_students }}</h1>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon icon-amber"><i class="fas fa-clock"></i></div>
+    <div class="stat-details">
+      <h3>Pending Students</h3>
+      <h1>{{ pending_students }}</h1>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon icon-navy"><i class="fas fa-indian-rupee-sign"></i></div>
+    <div class="stat-details">
+      <h3>Total Fee Collected</h3>
+      <h1>&#8377;{{ total_fee_paid|floatformat:0 }}</h1>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon icon-red"><i class="fas fa-triangle-exclamation"></i></div>
+    <div class="stat-details">
+      <h3>Total Fee Pending</h3>
+      <h1>&#8377;{{ total_fee_pending|floatformat:0 }}</h1>
+    </div>
+  </div>
+</div>
+
+<!-- ── Quick Actions ── -->
+<div class="quick-actions">
+  <a href="{% url 'upload_excel' %}" class="action-btn"><i class="fas fa-cloud-upload-alt"></i> Upload Excel</a>
+  <a href="{% url 'student_list' %}" class="action-btn action-btn-outline"><i class="fas fa-list"></i> All Students</a>
+</div>
+
+<!-- ── Charts ── -->
+<div class="charts-grid">
+  <div class="chart-card">
+    <h3><i class="fas fa-chart-donut"></i> Fee Collection Overview</h3>
+    <div id="feeChart"></div>
+  </div>
+  <div class="chart-card">
+    <h3><i class="fas fa-chart-bar"></i> Student Fee Status</h3>
+    <div id="statusChart"></div>
+  </div>
+</div>
+
+<div class="chart-card full-width">
+  <h3><i class="fas fa-layer-group"></i> Students by Standard</h3>
+  <div id="stdChart"></div>
+</div>
+
+<!-- ── Recent Table ── -->
+<div class="table-wrapper">
+  <div class="section-header">
+    <h3>Recent Fee Entries</h3>
+    <a href="{% url 'student_list' %}" class="view-all-btn">View all <i class="fas fa-arrow-right"></i></a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Roll No</th>
+        <th>Student Name</th>
+        <th>Standard</th>
+        <th>Fee Status</th>
+        <th>Paid Amount</th>
+        <th>Remaining</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in last_students %}
+      <tr>
+        <td><strong>#{{ s.roll_no }}</strong></td>
+        <td class="student-name">{{ s.name }}</td>
+        <td>{{ s.std }}</td>
+        <td>
+  <span class="badge
+    {% if s.fee_status|lower == 'paid' %}
+      badge-paid
+    {% else %}
+      badge-pending
+    {% endif %}">
+    
+    {% if s.fee_status|lower == 'paid' %}
+      <i class="fas fa-check-circle"></i>
+      Paid
+    {% else %}
+      <i class="fas fa-clock"></i>
+      Pending
+    {% endif %}
+    
+  </span>
+</td>
+        <td>&#8377;{{ s.total_paid_fee }}</td>
+        <td>&#8377;{{ s.remaining_fee }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="empty-state">No student records yet. Upload an Excel file to get started.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const commonOpts = {
+    chart: { fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", toolbar: { show: false } },
+    tooltip: { theme: "light" },
+  };
+
+  // Donut — fee collection
+  new ApexCharts(document.querySelector("#feeChart"), {
+    ...commonOpts,
+    chart: { ...commonOpts.chart, type: "donut", height: 320 },
+    series: [{{ total_fee_paid }}, {{ total_fee_pending }}],
+    labels: ["Fee Paid", "Fee Pending"],
+    colors: ["#6366f1", "#f59e0b"],
+    legend: { position: "bottom", fontSize: "13px", fontWeight: 500 },
+
+    plotOptions: { pie: { donut: { size: "68%", labels: { show: true, total: { show: true, label: "Total", formatter: (w) => "\u20B9" + w.globals.seriesTotals.reduce((a,b) => a+b, 0).toLocaleString() } } } } },
+    stroke: { width: 2, colors: ["#fff"] },
+  }).render();
+
+  // Bar — paid vs pending count
+  new ApexCharts(document.querySelector("#statusChart"), {
+    ...commonOpts,
+    chart: { ...commonOpts.chart, type: "bar", height: 320 },
+    series: [{ name: "Students", data: [{{ paid_students }}, {{ pending_students }}] }],
+    colors: ["#6366f1"],
+    xaxis: { categories: ["Paid", "Pending"], labels: { style: { fontWeight: 600 } } },
+    plotOptions: { bar: { borderRadius: 8, columnWidth: "45%" } },
+    dataLabels: { enabled: true, style: { fontWeight: 700 } },
+  }).render();
+
+  // Bar — students per standard
+ // Students By Standard
+
+new ApexCharts(
+    document.querySelector("#stdChart"),
+    {
+        ...commonOpts,
+
+        chart: {
+            ...commonOpts.chart,
+            type: "bar",
+            height: 350,
+            toolbar: {
+                show: false
+            }
+        },
+
+        series: [{
+            name: "Students",
+            data: {{ std_counts|safe }}
+        }],
+
+        colors: ["#8b5cf6"],
+
+        xaxis: {
+            categories: {{ std_labels|safe }},
+
+            title: {
+                text: "Standards",
+                style: {
+                    fontSize: "14px",
+                    fontWeight: 600
+                }
+            },
+
+            labels: {
+                style: {
+                    fontSize: "12px"
+                }
+            }
+        },
+
+        yaxis: {
+            title: {
+                text: "Number of Students",
+                style: {
+                    fontSize: "14px",
+                    fontWeight: 600
+                }
+            },
+
+            labels: {
+                formatter: function (val) {
+                    return Math.round(val);
+                }
+            }
+        },
+
+        plotOptions: {
+            bar: {
+                borderRadius: 8,
+                columnWidth: "55%",
+                distributed: false
+            }
+        },
+
+        dataLabels: {
+            enabled: true,
+            offsetY: -10,
+            style: {
+                fontSize: "12px",
+                fontWeight: 600
+            }
+        },
+
+        grid: {
+            borderColor: "#e5e7eb",
+            strokeDashArray: 4
+        },
+
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val + " Students";
+                }
+            }
+        }
+
+    }
+).render();
+});
+</script>
+{% endblock %}

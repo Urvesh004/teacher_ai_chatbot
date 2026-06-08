@@ -1,0 +1,54 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Settings{% endblock %}
+{% block breadcrumb %}Settings{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">System Settings</h1>
+    <p class="section-subtitle">Manage school and system configuration</p>
+  </div>
+</div>
+
+<div class="form-card">
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-section-title">School Information</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>School Name</label>
+        <input type="text" name="school_name" value="{{ settings.school_name }}" placeholder="Enter school name">
+      </div>
+      <div class="form-group">
+        <label>System Name</label>
+        <input type="text" name="system_name" value="{{ settings.system_name }}" placeholder="e.g. Excel AI Chatbot">
+      </div>
+      <div class="form-group">
+        <label>Contact Email</label>
+        <input type="email" name="email" value="{{ settings.email }}" placeholder="school@example.com">
+      </div>
+      <div class="form-group">
+        <label>Contact Number</label>
+        <input type="text" name="phone" value="{{ settings.phone }}" placeholder="+91 9876543210">
+      </div>
+      <div class="form-group form-full">
+        <label>School Address</label>
+        <textarea name="address" rows="3" placeholder="Full address">{{ settings.address }}</textarea>
+      </div>
+      <div class="form-group form-full">
+        <label>School Logo</label>
+        <input type="file" name="logo" accept="image/*">
+        {% if settings.logo %}
+        <div class="logo-preview">
+          <img src="{{ settings.logo.url }}" alt="School Logo">
+          <span class="muted" style="font-size:13px;margin-top:6px;display:block;">Current logo</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

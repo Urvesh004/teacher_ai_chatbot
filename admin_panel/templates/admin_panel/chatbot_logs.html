@@ -1,0 +1,49 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Chatbot Logs{% endblock %}
+{% block breadcrumb %}Chatbot Logs{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Chatbot Logs</h1>
+    <p class="section-subtitle">Monitor all chatbot conversations and queries</p>
+  </div>
+</div>
+
+<div class="stats-row stats-row-sm">
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-purple"><i class="fa-solid fa-robot"></i></div>
+    <div class="stat-body"><p class="stat-label">Total Queries</p><h2 class="stat-value">{{ logs.count }}</h2></div>
+  </div>
+</div>
+
+<div class="data-card">
+  <div class="data-card-header">
+    <h3>Chat History</h3>
+    <form method="GET" class="search-form">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" name="search" value="{{ search }}" placeholder="Search question..." class="search-input">
+    </form>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>User</th><th>Question</th><th>Response</th><th>Date & Time</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td class="muted">{{ log.id }}</td>
+          <td><strong>{% if log.user %}{{ log.user.username }}{% else %}<span class="muted">Anonymous</span>{% endif %}</strong></td>
+          <td><div class="chat-bubble chat-question">{{ log.question }}</div></td>
+          <td><div class="chat-bubble chat-answer">{{ log.answer }}</div></td>
+          <td class="muted">{{ log.created_at|date:"d M Y H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty-row"><i class="fa-solid fa-robot"></i><br>No chatbot logs found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

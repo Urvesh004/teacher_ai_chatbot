@@ -1,0 +1,123 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <a href="{% url 'home' %}" class="navbar-brand">
+      <i class="fas fa-school"></i>
+      <span>Excel AI Chatbot</span>
+    </a>
+  </div>
+
+  <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <div class="navbar-right">
+    {% if request.user.is_authenticated %}
+      {% if request.user.role == 'superadmin' %}
+        <ul class="nav-menu" id="nav-menu">
+          <li>
+            <a href="{% url 'dashboard' %}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="{% url 'upload_excel' %}"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
+          </li>
+          <li>
+            <a href="{% url 'student_list' %}"><i class="fas fa-users"></i> Students</a>
+          </li>
+          <li>
+            <a href="{% url 'admin_panel:dashboard' %}"> <i class="fa-solid fa-shield-halved"></i> Admin_panel</a>
+          </li>
+        </ul>
+
+        <div class="user-chip">
+          <i class="fas fa-user-circle"></i>
+          <span>{{ request.user.username }}</span>
+        </div>
+
+        <a href="{% url 'logout' %}" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+
+      {% else %}
+        <ul class="nav-menu" id="nav-menu">
+          <li>
+            <a href="{% url 'dashboard' %}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="{% url 'upload_excel' %}"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
+          </li>
+          <li>
+            <a href="{% url 'student_list' %}"><i class="fas fa-users"></i> Students</a>
+          </li>
+        </ul>
+
+        <div class="user-chip">
+          <i class="fas fa-user-circle"></i>
+          <span>{{ request.user.username }}</span>
+        </div>
+
+        <a href="{% url 'logout' %}" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        {% endif %}
+      
+    {% else %}
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="#features"><i class="fas fa-cube"></i> Features</a></li>
+      </ul>
+      <div class="nav-auth-btns">
+        <a href="{% url 'login' %}" class="nav-login-btn">Login</a>
+        <a href="{% url 'register' %}" class="nav-register-btn"><i class="fas fa-rocket"></i> Get Started</a>
+      </div>
+    {% endif %}
+  </div>
+</nav>
+
+<style>
+  .nav-auth-btns {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-login-btn {
+    color: rgba(255,255,255,.8);
+    padding: 7px 18px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: .88rem;
+    transition: all var(--transition);
+  }
+  .nav-login-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,.1);
+  }
+  .nav-register-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: .85rem;
+    transition: all var(--transition);
+    box-shadow: 0 2px 10px rgba(99,102,241,.3);
+  }
+  .nav-register-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(99,102,241,.45);
+  }
+  @media (max-width: 768px) {
+    .nav-auth-btns { display: none; }
+    .nav-auth-btns.mobile-open { display: flex; flex-direction: column; width: 100%; }
+    .nav-login-btn, .nav-register-btn { width: 100%; text-align: center; justify-content: center; }
+  }
+</style>
+
+<script>
+  document.getElementById('hamburger-btn')?.addEventListener('click', function() {
+    document.getElementById('nav-menu')?.classList.toggle('mobile-open');
+    document.querySelector('.nav-auth-btns')?.classList.toggle('mobile-open');
+  });
+</script>

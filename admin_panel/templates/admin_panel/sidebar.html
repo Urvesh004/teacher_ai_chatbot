@@ -1,0 +1,46 @@
+{% if user.role == 'superadmin' %}
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">EduAdmin</span>
+        <span class="brand-role">Super Admin</span>
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="{% url 'admin_panel:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span><span class="nav-label">Dashboard</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'admin_panel:excel_sheets' %}" class="nav-link {% if request.resolver_match.url_name == 'excel_sheets' %}active{% endif %}"><span class="nav-icon"><i class="fa-solid fa-file-excel"></i></span><span class="nav-label">Excel Sheets</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'admin_panel:users' %}" class="nav-link {% if 'user' in request.resolver_match.url_name and 'log' not in request.resolver_match.url_name %}active{% endif %}"><span class="nav-icon"><i class="fa-solid fa-users"></i></span><span class="nav-label">Users</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'admin_panel:user_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'user_logs' %}active{% endif %}"><span class="nav-icon"><i class="fa-solid fa-clipboard-list"></i></span><span class="nav-label">User Logs</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'admin_panel:chatbot_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'chatbot_logs' %}active{% endif %}"><span class="nav-icon"><i class="fa-solid fa-robot"></i></span><span class="nav-label">Chatbot Logs</span></a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'home' %}" class="nav-link">
+          <span class="nav-icon"><i class="fa-solid fa-house"></i></span>
+
+          <span class="nav-label">Main Website</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a href="{% url 'admin_panel:settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span><span class="nav-label">Settings</span></a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+    </div>
+  </nav>
+{% endif %}

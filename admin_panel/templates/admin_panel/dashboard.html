@@ -1,0 +1,153 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">Dashboard Overview</h1>
+    <p class="section-subtitle">Welcome back, {{ request.user.first_name|default:request.user.username }}</p>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-blue"><i class="fa-solid fa-users"></i></div>
+    <div class="stat-body">
+      <p class="stat-label">Total Students</p>
+      <h2 class="stat-value">{{ total_students }}</h2>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-green"><i class="fa-solid fa-circle-check"></i></div>
+    <div class="stat-body">
+      <p class="stat-label">Paid Students</p>
+      <h2 class="stat-value">{{ paid_students }}</h2>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-red"><i class="fa-solid fa-clock"></i></div>
+    <div class="stat-body">
+      <p class="stat-label">Pending Students</p>
+      <h2 class="stat-value">{{ pending_students }}</h2>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-purple"><i class="fa-solid fa-file-excel"></i></div>
+    <div class="stat-body">
+      <p class="stat-label">Excel Uploads</p>
+      <h2 class="stat-value">{{ total_uploads }}</h2>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-orange"><i class="fa-solid fa-user-shield"></i></div>
+    <div class="stat-body">
+      <p class="stat-label">Total Users</p>
+      <h2 class="stat-value">{{ total_users }}</h2>
+    </div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="chart-card">
+    <h3 class="chart-title">Fee Collection</h3>
+    <div id="feeChart"></div>
+  </div>
+  <div class="chart-card">
+    <h3 class="chart-title">Fee Status</h3>
+    <div id="statusChart"></div>
+  </div>
+  <div class="chart-card chart-wide">
+    <h3 class="chart-title">Students by Standard</h3>
+    <div id="stdChart"></div>
+  </div>
+</div>
+
+<div class="data-card">
+  <div class="data-card-header">
+    <h3>Recent Fee Entries</h3>
+    <span class="badge-count">Last 10</span>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Roll No</th>
+          <th>Student Name</th>
+          <th>Standard</th>
+          <th>Fee Status</th>
+          <th>Amount Paid</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in last_students %}
+        <tr>
+          <td><strong>{{ student.roll_no }}</strong></td>
+          <td>{{ student.name }}</td>
+          <td><span class="std-pill">Std {{ student.std }}</span></td>
+          <td>
+            {% if student.fee_status|lower == 'paid' %}
+              <span class="badge badge-success">Paid</span>
+            {% elif student.fee_status|lower == 'pending' %}
+              <span class="badge badge-danger">Pending</span>
+            {% else %}
+              <span class="badge badge-secondary">{{ student.fee_status }}</span>
+            {% endif %}
+          </td>
+          <td class="amount">₹{{ student.total_paid_fee }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty-row"><i class="fa-solid fa-inbox"></i><br>No students found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const feeEl = document.querySelector("#feeChart");
+  const statusEl = document.querySelector("#statusChart");
+  const stdEl = document.querySelector("#stdChart");
+
+  if (feeEl) {
+    new ApexCharts(feeEl, {
+      chart: { type: "donut", height: 240, fontFamily: "DM Sans, sans-serif" },
+      series: [{{ total_fee_paid|default:0 }}, {{ total_fee_pending|default:0 }}],
+      labels: ["Fee Collected", "Fee Pending"],
+      colors: ["#22c55e", "#f43f5e"],
+      legend: { position: "bottom", fontSize: "13px" },
+      dataLabels: { enabled: false },
+      stroke: { width: 0 },
+      plotOptions: { pie: { donut: { size: "65%" } } }
+    }).render();
+  }
+
+  if (statusEl) {
+    new ApexCharts(statusEl, {
+      chart: { type: "bar", height: 240, toolbar: { show: false }, fontFamily: "DM Sans, sans-serif" },
+      series: [{ name: "Students", data: [{{ paid_students|default:0 }}, {{ pending_students|default:0 }}] }],
+      colors: ["#6366f1"],
+      plotOptions: { bar: { borderRadius: 8, columnWidth: "40%" } },
+      dataLabels: { enabled: false },
+      xaxis: { categories: ["Paid", "Pending"], labels: { style: { fontSize: "13px" } } },
+      grid: { borderColor: "#f1f5f9" }
+    }).render();
+  }
+
+  if (stdEl) {
+    new ApexCharts(stdEl, {
+      chart: { type: "bar", height: 240, toolbar: { show: false }, fontFamily: "DM Sans, sans-serif" },
+      series: [{ name: "Students", data: {{ std_counts|safe }} }],
+      colors: ["#0ea5e9"],
+      plotOptions: { bar: { borderRadius: 6, columnWidth: "50%" } },
+      dataLabels: { enabled: true, style: { fontSize: "12px", colors: ["#fff"] } },
+      xaxis: { categories: {{ std_labels|safe }}, labels: { style: { fontSize: "12px" } } },
+      grid: { borderColor: "#f1f5f9" }
+    }).render();
+  }
+});
+</script>
+{% endblock %}

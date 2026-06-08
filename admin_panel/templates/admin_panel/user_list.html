@@ -1,0 +1,65 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Users{% endblock %}
+{% block breadcrumb %}Users{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h1 class="section-title">User Management</h1>
+    <p class="section-subtitle">Manage all registered users</p>
+  </div>
+  <a href="{% url 'register' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add User</a>
+</div>
+
+<div class="stats-row stats-row-sm">
+  <div class="stat-card">
+    <div class="stat-icon-wrap clr-blue"><i class="fa-solid fa-users"></i></div>
+    <div class="stat-body"><p class="stat-label">Total Users</p><h2 class="stat-value">{{ users.count }}</h2></div>
+  </div>
+</div>
+
+<div class="data-card">
+  <div class="data-card-header">
+    <h3>User List</h3>
+    <form method="GET" class="search-form">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" name="search" value="{{ search }}" placeholder="Search username..." class="search-input">
+    </form>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td class="muted">{{ u.id }}</td>
+          <td><strong>{{ u.username }}</strong></td>
+          <td>{{ u.first_name }} {{ u.last_name }}</td>
+          <td class="muted">{{ u.email }}</td>
+          <td>
+            {% if u.role == 'superadmin' %}
+              <span class="badge badge-purple">Super Admin</span>
+            {% else %}
+              <span class="badge badge-info">Teacher</span>
+            {% endif %}
+          </td>
+          <td class="muted">{{ u.date_joined|date:"d M Y" }}</td>
+          <td>
+            <a href="{% url 'admin_panel:edit_user' u.id %}" class="btn btn-sm btn-edit"><i class="fa-solid fa-pen"></i> Edit</a>
+            <!-- FIX: was GET link; now POST form for safety -->
+            <form method="post" action="{% url 'admin_panel:delete_user' u.id %}" style="display:inline;" onsubmit="return confirm('Delete user {{ u.username }}?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash"></i> Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty-row"><i class="fa-solid fa-users"></i><br>No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin{% endblock %} — EduAdmin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'admin_panel/css/admin.css' %}">
+</head>
+<body>
+  {% include 'admin_panel/sidebar.html' %}
+
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+        <span class="topbar-title">{% block breadcrumb %}Dashboard{% endblock %}</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-avatar">{{ request.user.username|first|upper }}</div>
+        <div class="topbar-username">{{ request.user.username }}</div>
+      </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+      <div class="flash flash-{{ message.tags }}">
+        <i class="fa-solid {% if 'success' in message.tags %}fa-circle-check{% elif 'error' in message.tags %}fa-circle-xmark{% else %}fa-circle-info{% endif %}"></i>
+        <span>{{ message }}</span>
+        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="page-body">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.getElementById("sidebarToggle");
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.querySelector(".main-content");
+
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("collapsed");
+            mainContent.classList.toggle("expanded");
+        });
+    }
+});
+</script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

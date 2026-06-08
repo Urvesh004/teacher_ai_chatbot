@@ -1,0 +1,462 @@
+{% extends 'excel_ai_chatbot/base.html' %}
+{% load static %}
+
+{% block title %}Excel AI Chatbot — Smart Student Analytics{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+<!-- ════════════════════════════════════════════
+     AUTHENTICATED HOME — Personalized Dashboard
+══════════════════════════════════════════════ -->
+
+<!-- Welcome Banner -->
+<section class="auth-home-welcome">
+  <div class="welcome-bg-shapes">
+    <div class="welcome-shape welcome-shape-1"></div>
+    <div class="welcome-shape welcome-shape-2"></div>
+    <div class="welcome-shape welcome-shape-3"></div>
+  </div>
+  <div class="welcome-inner">
+    <div class="welcome-text">
+      <div class="welcome-greeting">
+        <span class="welcome-wave">Welcome back,</span>
+        <h1 class="welcome-name">{{ request.user.username|title }}</h1>
+      </div>
+      <p class="welcome-subtitle">Here's what's happening with your student data today.</p>
+    </div>
+    <div class="welcome-actions">
+      <a href="{% url 'dashboard' %}" class="welcome-btn-primary">
+        <i class="fas fa-chart-pie"></i> View Dashboard
+      </a>
+      <a href="{% url 'upload_excel' %}" class="welcome-btn-outline">
+        <i class="fas fa-cloud-upload-alt"></i> Upload Excel
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Stats -->
+<section class="auth-home-stats">
+  <div class="home-stat-card">
+    <div class="home-stat-icon icon-blue"><i class="fas fa-users"></i></div>
+    <div class="home-stat-info">
+      <span class="home-stat-label">Total Students</span>
+      <span class="home-stat-value">{{ total_students }}</span>
+    </div>
+    <div class="home-stat-trend trend-up">
+      <i class="fas fa-arrow-up"></i>
+    </div>
+  </div>
+
+  <div class="home-stat-card">
+    <div class="home-stat-icon icon-green"><i class="fas fa-circle-check"></i></div>
+    <div class="home-stat-info">
+      <span class="home-stat-label">Fee Paid</span>
+      <span class="home-stat-value">{{ paid_students }}</span>
+    </div>
+    <div class="home-stat-trend trend-up">
+      <i class="fas fa-check"></i>
+    </div>
+  </div>
+
+  <div class="home-stat-card">
+    <div class="home-stat-icon icon-amber"><i class="fas fa-clock"></i></div>
+    <div class="home-stat-info">
+      <span class="home-stat-label">Pending</span>
+      <span class="home-stat-value">{{ pending_students }}</span>
+    </div>
+    <div class="home-stat-trend trend-warn">
+      <i class="fas fa-exclamation"></i>
+    </div>
+  </div>
+
+  <div class="home-stat-card">
+    <div class="home-stat-icon icon-navy"><i class="fas fa-indian-rupee-sign"></i></div>
+    <div class="home-stat-info">
+      <span class="home-stat-label">Fee Collected</span>
+      <span class="home-stat-value">&#8377;{{ total_fee_paid|floatformat:0 }}</span>
+    </div>
+    <div class="home-stat-trend trend-up">
+      <i class="fas fa-arrow-up"></i>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Actions & Recent Students -->
+<section class="auth-home-grid">
+  <!-- Left: Quick Actions -->
+  <div class="home-quick-panel">
+    <h3 class="home-section-title">
+      <i class="fas fa-bolt"></i> Quick Actions
+    </h3>
+    <div class="quick-action-cards">
+      <a href="{% url 'upload_excel' %}" class="quick-action-card qa-upload">
+        <div class="qa-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+        <div class="qa-info">
+          <span class="qa-title">Upload Excel</span>
+          <span class="qa-desc">Import student data</span>
+        </div>
+        <i class="fas fa-chevron-right qa-arrow"></i>
+      </a>
+
+      <a href="{% url 'student_list' %}" class="quick-action-card qa-students">
+        <div class="qa-icon"><i class="fas fa-user-graduate"></i></div>
+        <div class="qa-info">
+          <span class="qa-title">All Students</span>
+          <span class="qa-desc">Search & manage records</span>
+        </div>
+        <i class="fas fa-chevron-right qa-arrow"></i>
+      </a>
+
+      <a href="{% url 'dashboard' %}" class="quick-action-card qa-dashboard">
+        <div class="qa-icon"><i class="fas fa-chart-bar"></i></div>
+        <div class="qa-info">
+          <span class="qa-title">Analytics Dashboard</span>
+          <span class="qa-desc">Charts & reports</span>
+        </div>
+        <i class="fas fa-chevron-right qa-arrow"></i>
+      </a>
+
+      <a href="#chat-icon" class="quick-action-card qa-chatbot" id="home-chatbot-link">
+        <div class="qa-icon"><i class="fas fa-robot"></i></div>
+        <div class="qa-info">
+          <span class="qa-title">AI Chatbot</span>
+          <span class="qa-desc">Ask about your data</span>
+        </div>
+        <i class="fas fa-chevron-right qa-arrow"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Right: Recent Students -->
+  <div class="home-recent-panel">
+    <div class="home-section-header">
+      <h3 class="home-section-title">
+        <i class="fas fa-clock-rotate-left"></i> Recent Students
+      </h3>
+      <a href="{% url 'student_list' %}" class="view-all-btn">View all <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="home-recent-list">
+      {% for s in last_students %}
+      <a href="{% url 'student_detail' s.id %}" class="recent-student-row">
+        <div class="recent-student-avatar" style="background: {% cycle '#6366f1' '#8b5cf6' '#06b6d4' '#10b981' '#f59e0b' '#ef4444' %};">
+          {{ s.name|make_list|first|title }}
+        </div>
+        <div class="recent-student-info">
+          <span class="recent-student-name">{{ s.name }}</span>
+          <span class="recent-student-meta">Std {{ s.std }} &middot; Roll #{{ s.roll_no }}</span>
+        </div>
+        <span class="badge {% if s.fee_status|lower == 'paid' %}badge-paid{% elif s.fee_status|lower == 'pending' %}badge-pending{% else %}badge-default{% endif %}">
+          {% if s.fee_status|lower == 'paid' %}<i class="fas fa-check-circle"></i>
+          {% elif s.fee_status|lower == 'pending' %}<i class="fas fa-clock"></i>{% endif %}
+          {{ s.fee_status }}
+        </span>
+      </a>
+      {% empty %}
+      <div class="home-empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>No students yet</p>
+        <a href="{% url 'upload_excel' %}" class="home-empty-cta">Upload Excel to get started</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Fee Overview Bar -->
+<section class="auth-home-fee-bar">
+  <div class="fee-bar-card">
+    <div class="fee-bar-header">
+      <h3><i class="fas fa-indian-rupee-sign"></i> Fee Overview</h3>
+      <a href="{% url 'dashboard' %}" class="view-all-btn">Detailed report <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="fee-bar-visual">
+      <div class="fee-bar-track">
+        <div class="fee-bar-fill" id="fee-bar-fill"></div>
+      </div>
+      <div class="fee-bar-labels">
+        <div class="fee-bar-label-item">
+          <span class="fee-dot fee-dot-paid"></span>
+          <span class="fee-bar-text">Paid: <strong>{{ paid_students }}</strong> students (&#8377;{{ total_fee_paid|floatformat:0 }})</span>
+        </div>
+        <div class="fee-bar-label-item">
+          <span class="fee-dot fee-dot-pending"></span>
+          <span class="fee-bar-text">Pending: <strong>{{ pending_students }}</strong> students (&#8377;{{ total_fee_pending|floatformat:0 }})</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Open chatbot when clicking the home chatbot quick action link
+  document.getElementById('home-chatbot-link')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const chatIcon = document.getElementById('chat-icon');
+    const chatBox = document.getElementById('chat-box');
+    if (chatIcon && chatBox) {
+      chatBox.classList.add('active');
+      chatIcon.classList.add('open');
+      const badge = document.getElementById('chat-badge');
+      if (badge) badge.style.display = 'none';
+      const msgInput = document.getElementById('chat-message');
+      if (msgInput) msgInput.focus();
+    }
+  });
+
+  // Calculate fee bar percentage
+  (function() {
+    const paidStudents = {{ paid_students|default:"0" }};
+    const totalStudents = {{ total_students|default:"0" }};
+    const barFill = document.getElementById('fee-bar-fill');
+    if (barFill && totalStudents > 0) {
+      const pct = Math.round((paidStudents / totalStudents) * 100);
+      barFill.style.width = Math.max(pct, 2) + '%';
+    } else if (barFill) {
+      barFill.style.width = '2%';
+    }
+  })();
+</script>
+
+{% else %}
+<!-- ════════════════════════════════════════════
+     NON-AUTHENTICATED HOME — Marketing Landing
+══════════════════════════════════════════════ -->
+
+<!-- HERO — Full-width Split Layout -->
+<section class="landing-hero">
+  <div class="hero-bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="hero-inner">
+    <!-- Left — Text -->
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-sparkles"></i> AI-Powered Analytics
+      </div>
+      <h1>
+        Smart Student<br>
+        <span class="hero-gradient-text">Analytics & Fee</span><br>
+        Management
+      </h1>
+      <p class="hero-desc">
+        Upload Excel sheets, track fee payments, analyze student records,
+        and get instant answers through an integrated AI chatbot — built
+        for school teachers.
+      </p>
+      <div class="hero-buttons">
+        <a href="{% url 'login' %}" class="hero-btn-primary">
+          <i class="fas fa-sign-in-alt"></i> Get Started
+        </a>
+        <a href="#features" class="hero-btn-ghost">
+          <i class="fas fa-arrow-down"></i> Explore Features
+        </a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars">
+          <span class="avatar-dot-sm" style="background:#6366f1;">A</span>
+          <span class="avatar-dot-sm" style="background:#8b5cf6;">R</span>
+          <span class="avatar-dot-sm" style="background:#06b6d4;">S</span>
+        </div>
+        <span class="trust-text">Trusted by <strong>500+</strong> teachers across schools</span>
+      </div>
+    </div>
+
+    <!-- Right — Visual -->
+    <div class="hero-visual">
+      <div class="visual-card main-card">
+        <div class="visual-card-header">
+          <div class="visual-dots">
+            <span style="background:#ef4444;"></span>
+            <span style="background:#f59e0b;"></span>
+            <span style="background:#10b981;"></span>
+          </div>
+          <span class="visual-card-title">Dashboard Overview</span>
+        </div>
+        <div class="visual-stats">
+          <div class="visual-stat">
+            <span class="visual-stat-icon" style="background:#eef2ff;color:#6366f1;"><i class="fas fa-users"></i></span>
+            <div>
+              <span class="visual-stat-label">Total Students</span>
+              <span class="visual-stat-value">1,248</span>
+            </div>
+          </div>
+          <div class="visual-stat">
+            <span class="visual-stat-icon" style="background:#ecfdf5;color:#10b981;"><i class="fas fa-circle-check"></i></span>
+            <div>
+              <span class="visual-stat-label">Fee Paid</span>
+              <span class="visual-stat-value">986</span>
+            </div>
+          </div>
+          <div class="visual-stat">
+            <span class="visual-stat-icon" style="background:#fffbeb;color:#f59e0b;"><i class="fas fa-clock"></i></span>
+            <div>
+              <span class="visual-stat-label">Pending</span>
+              <span class="visual-stat-value">262</span>
+            </div>
+          </div>
+        </div>
+        <div class="visual-chart-bars">
+          <div class="vbar" style="height:60%;background:linear-gradient(180deg,#6366f1,#8b5cf6);"></div>
+          <div class="vbar" style="height:85%;background:linear-gradient(180deg,#6366f1,#8b5cf6);"></div>
+          <div class="vbar" style="height:45%;background:linear-gradient(180deg,#6366f1,#8b5cf6);"></div>
+          <div class="vbar" style="height:70%;background:linear-gradient(180deg,#6366f1,#8b5cf6);"></div>
+          <div class="vbar" style="height:55%;background:linear-gradient(180deg,#6366f1,#8b5cf6);"></div>
+          <div class="vbar" style="height:90%;background:linear-gradient(180deg,#6366f1,#8b5cf6);"></div>
+          <div class="vbar" style="height:40%;background:linear-gradient(180deg,#6366f1,#8b5cf6);"></div>
+        </div>
+      </div>
+
+      <!-- Floating chat bubble -->
+      <div class="floating-chat-bubble">
+        <div class="chat-bubble-icon"><i class="fas fa-robot"></i></div>
+        <div class="chat-bubble-text">
+          <strong>Total Students?</strong><br>
+          <span>There are <strong>1,248</strong> students across all standards.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- FEATURES -->
+<section class="landing-section" id="features">
+  <div class="section-label">
+    <span class="section-tag"><i class="fas fa-cube"></i> Core Features</span>
+    <h2>Everything you need to manage students</h2>
+    <p>From uploading Excel data to getting instant answers, our platform streamlines every aspect of student management.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card-lg">
+      <div class="feature-icon-wrap icon-blue-lg">
+        <i class="fas fa-file-excel"></i>
+      </div>
+      <h3>Excel Upload</h3>
+      <p>Upload student Excel files and automatically import records into the system with smart column detection and real-time validation. Supports .xlsx and .xls formats.</p>
+      <a href="{% url 'login' %}" class="feature-link"><i class="fas fa-arrow-right"></i> Try it now</a>
+    </div>
+
+    <div class="feature-card-lg">
+      <div class="feature-icon-wrap icon-green-lg">
+        <i class="fas fa-user-graduate"></i>
+      </div>
+      <h3>Student Management</h3>
+      <p>Search, filter, and view student information with ease. Edit records, track individual student details, and manage comprehensive student profiles effortlessly.</p>
+      <a href="{% url 'login' %}" class="feature-link"><i class="fas fa-arrow-right"></i> Try it now</a>
+    </div>
+
+    <div class="feature-card-lg">
+      <div class="feature-icon-wrap icon-violet-lg">
+        <i class="fas fa-chart-pie"></i>
+      </div>
+      <h3>Analytics Dashboard</h3>
+      <p>View fee collection reports and student analytics using interactive charts with donut, bar, and area visualizations. Get a bird's-eye view of your school data.</p>
+      <a href="{% url 'login' %}" class="feature-link"><i class="fas fa-arrow-right"></i> Try it now</a>
+    </div>
+
+    <div class="feature-card-lg">
+      <div class="feature-icon-wrap icon-cyan-lg">
+        <i class="fas fa-robot"></i>
+      </div>
+      <h3>Smart Chatbot</h3>
+      <p>Ask questions like "Total Students", "Pending Fees", or "Std 10 Students" and get instant AI-powered answers. Quick suggestion chips for common queries.</p>
+      <a href="{% url 'login' %}" class="feature-link"><i class="fas fa-arrow-right"></i> Try it now</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- HOW IT WORKS -->
+<section class="landing-section how-section">
+  <div class="section-label">
+    <span class="section-tag"><i class="fas fa-route"></i> How It Works</span>
+    <h2>Get started in 3 simple steps</h2>
+    <p>From registration to insights — it takes less than 5 minutes to set up and start analyzing your school data.</p>
+  </div>
+
+  <div class="steps-row">
+    <div class="step-card">
+      <div class="step-number">01</div>
+      <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+      <h3>Register & Login</h3>
+      <p>Create your teacher account in seconds and access your personalized analytics dashboard immediately.</p>
+    </div>
+
+    <div class="step-connector"><i class="fas fa-chevron-right"></i></div>
+
+    <div class="step-card">
+      <div class="step-number">02</div>
+      <div class="step-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+      <h3>Upload Excel</h3>
+      <p>Drag and drop your student Excel file. Our system auto-detects columns and imports all records instantly.</p>
+    </div>
+
+    <div class="step-connector"><i class="fas fa-chevron-right"></i></div>
+
+    <div class="step-card">
+      <div class="step-number">03</div>
+      <div class="step-icon"><i class="fas fa-chart-line"></i></div>
+      <h3>Analyze & Chat</h3>
+      <p>Explore interactive charts, manage student records, and ask the AI chatbot any question about your data.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- STATS BAR -->
+<section class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stats-bar-item">
+      <span class="stats-bar-num">500+</span>
+      <span class="stats-bar-label">Teachers</span>
+    </div>
+    <div class="stats-bar-divider"></div>
+    <div class="stats-bar-item">
+      <span class="stats-bar-num">10K+</span>
+      <span class="stats-bar-label">Students Tracked</span>
+    </div>
+    <div class="stats-bar-divider"></div>
+    <div class="stats-bar-item">
+      <span class="stats-bar-num">50K+</span>
+      <span class="stats-bar-label">Records Processed</span>
+    </div>
+    <div class="stats-bar-divider"></div>
+    <div class="stats-bar-item">
+      <span class="stats-bar-num">99.9%</span>
+      <stats-bar-label>Uptime</stats-bar-label>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA SECTION -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-bg-shapes">
+      <div class="cta-shape cta-shape-1"></div>
+      <div class="cta-shape cta-shape-2"></div>
+    </div>
+    <div class="cta-content">
+      <h2>Ready to streamline your student management?</h2>
+      <p>Join hundreds of teachers who are already saving hours every week with Excel AI Chatbot.</p>
+      <div class="cta-buttons">
+        <a href="{% url 'register' %}" class="cta-btn-primary">
+          <i class="fas fa-rocket"></i> Start Free Today
+        </a>
+        <a href="{% url 'login' %}" class="cta-btn-ghost">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endif %}
+
+{% endblock %}
