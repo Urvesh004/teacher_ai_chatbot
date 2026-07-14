@@ -25,8 +25,16 @@ SECRET_KEY = "django-insecure-5k2(hjyq+y*l*281ce$(lx=dcf%@(5d!9t0jy*6ua1-kr0lg%!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "teacher-ai-chatbot-chi.vercel.app",
+    ".vercel.app",      # allows all Vercel preview deployments
+    "localhost",
+    "127.0.0.1",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://teacher-ai-chatbot-chi.vercel.app",
+]
 
 # Application definition
 
