@@ -2,3 +2,6 @@ db.sqlite3
 media
 env
 .env
+admin_panel/__pycache__
+excel_ai_chatbot/__pycache__
+Excel_AI_chatbot_project/__pycache__
