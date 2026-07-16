@@ -4,11 +4,5 @@
     "Excel_AI_chatbot_project/wsgi.py": {
       "maxDuration": 30
     }
-  },
-  "builds": [
-    { "src": "manage.py", "use": "@vercel/python" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "Excel_AI_chatbot_project/wsgi.py" }
-  ]
+  }
 }
