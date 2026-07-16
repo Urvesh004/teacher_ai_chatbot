@@ -4,8 +4,6 @@
     "Excel_AI_chatbot_project/wsgi.py": {
       "maxDuration": 30
     }
-  },
-"build": {
-"command": "python manage.py collectstatic --noinput"
-}
+  }
+  
 }
